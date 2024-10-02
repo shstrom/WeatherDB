@@ -1,13 +1,13 @@
 package com.testprosjekt.WeatherDB.frost;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import javax.net.ssl.HttpsURLConnection;
 import org.apache.commons.codec.binary.Base64;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
+
+import javax.net.ssl.HttpsURLConnection;
+import java.io.InputStreamReader;
+import java.net.URL;
 
 public class Frost {
 
@@ -16,10 +16,12 @@ public class Frost {
             // Insert your own client ID
             String client_id = "cfb662ba-dfac-456a-b854-88fefbf51a9e";
             // Build the URL and define parameters
-            String url = "https://frost.met.no/observations/v0.jsonld?";
-            url += "sources=" + "SN18700,SN90450";
-            url += "&elements=" + "mean(air_temperature P1D),sum(precipitation_amount P1D),mean(wind_speed P1D)";
-            url += "&referencetime=" + "010-04-01/2010-04-03";
+            String url = "https://frost.met.no/locations/v0.jsonld?names=Oslo";
+            url += "sources=" + "SN18020";
+            url += "&elements=" + "mean(air_temperature P1D)";
+            url += "&referencetime=" + "2024-09-01/2024-10-01";
+            url += "&levels=default";
+            url += "&timeoffsets=default";
             // Replace spaces
             url = url.replaceAll(" ", "%20");
             // Issue an HTTP GET request
