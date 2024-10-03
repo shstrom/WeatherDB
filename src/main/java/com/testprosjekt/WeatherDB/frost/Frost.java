@@ -15,7 +15,7 @@ public class Frost {
     public static void main(String[] args) {
 
 
-        ArrayList<String> stations = new ArrayList<>();
+        ArrayList<Station> stations = new ArrayList<>();
         try {
             // Insert your own client ID
             String client_id = "cfb662ba-dfac-456a-b854-88fefbf51a9e";
@@ -31,11 +31,25 @@ public class Frost {
             conn.setRequestProperty("Authorization", "Basic " + new String(Base64.encodeBase64((client_id + ":").getBytes("UTF-8"))));
             // Extract JSON data
             JSONObject object = new JSONObject(new JSONTokener(new InputStreamReader(conn.getInputStream())));
-            JSONArray id = object.getJSONArray("data");
+            JSONArray data = object.getJSONArray("data");
+            //JSONArray geometry;
             // Loop through the data
-            for (int i = 0; i < id.length(); i++) {
-                object = id.getJSONObject(i);
-                if (!stations.contains(object.getString("id")))stations.add (object.getString("id"));
+            for (int i = 0; i < data.length(); i++) {
+                object = data.getJSONObject(i);
+
+                Station station = new Station(object.getString("id"), object.getString("name"), object.getString("shortName"));
+
+
+                //}
+
+                JSONObject g = object.getJSONObject("geometry");
+                var c = g.get("coordinates");
+                String cs = String.format("%s", c);
+                station.setCoordinates(cs);
+                station.calculateDistance();
+
+                if (!stations.contains(station))stations.add (station);
+
             }
         } catch (Exception ex) {
             System.out.println("Error: the data retrieval was not successful!");
@@ -70,19 +84,48 @@ public class Frost {
             // Loop through the data
             for (int i = 0; i < data.length(); i++) {
                 object = data.getJSONObject(i);
-                System.out.println("\n" + object.getString("sourceId") + "  " + object.getString("referenceTime"));
-                observations = object.getJSONArray("observations");
-                // new Station(object.getString("sourceId"), object.getString("name"), object.getString("shortName"), object.getString("coordinates"));
-                for (int j = 0; j < observations.length(); j++) {
-                    object = observations.getJSONObject(j);
-                    System.out.println(" " + object.getString("elementId") + "=" + object.getInt("value") + "  (" + object.getString("timeOffset") + ")");
+                //her må jeg sammenligne ID og evt legge til verdiene dato og temperatur til korrekt instance
+                for (Station s : stations){
+                    if (s.getId().equals(object.getString("sourceId"))){
+                        String x = object.getString("referenceTime");
+                        String y = "";
+                        observations = object.getJSONArray("observations");
+                        for (int j = 0; j < observations.length(); j++) {
+                            object = observations.getJSONObject(j);
+                            y = object.getString("value");
+                            String [] temp = {x, y};
+                            s.values.add(temp);
+                        }
+                        //dårlig optimalisering
+                    }
                 }
             }
         } catch (Exception ex) {
             System.out.println("Error: the data retrieval was not successful!");
             ex.printStackTrace();
         }
-        System.out.println(stations);
-        System.out.println(osloStations);
+        //System.out.println(stations);
+        //System.out.println(osloStations);
+        for (Station s : stations){
+            System.out.println(s.toString());
+        }
+
+        //finne nærmeste stasjon
+
+        double comp = 3.00;
+
+        for (Station s: stations){
+            if (s.distance < comp){
+                comp = s.distance;
+            }
+        }
+        for (Station s: stations){
+            if (s.distance == comp){
+                s.setClosest(true);
+                System.out.println(s.shortName + " is closest to Gamlebyen!");
+            } else {
+                s.setClosest(false);
+            }
+        }
     }
 }
