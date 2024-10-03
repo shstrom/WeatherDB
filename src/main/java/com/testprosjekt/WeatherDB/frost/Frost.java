@@ -99,7 +99,7 @@ public class Frost {
                             String [] temp = {x, y};
                             s.values.add(temp);
                         }
-                        //dårlig optimalisering
+                        //dårlig optimalisering eller?
                     }
                 }
             }
