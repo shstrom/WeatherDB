@@ -16,6 +16,7 @@ public class Frost {
 
 
         ArrayList<Station> stations = new ArrayList<>();
+        String stationId = "";
         try {
             // Insert your own client ID
             String client_id = "cfb662ba-dfac-456a-b854-88fefbf51a9e";
@@ -49,14 +50,15 @@ public class Frost {
                 station.calculateDistance();
 
                 if (!stations.contains(station))stations.add (station);
+                stationId = stationId + object.getString("id") + ",";
 
             }
         } catch (Exception ex) {
             System.out.println("Error: the data retrieval was not successful!");
             ex.printStackTrace();
         }
-        String osloStations = (stations.toString());
-        osloStations= osloStations.replaceAll("[ \\]]", "").replaceAll("\\[", "");
+
+        String osloStations= stationId.replaceAll("[ \\]]", "").replaceAll("\\[", "");
 
 
         try {
@@ -66,7 +68,7 @@ public class Frost {
             String url = "https://frost.met.no/observations/v0.jsonld?";
             url += "sources=" + osloStations;
             url += "&elements=" + "mean(air_temperature P1D)";//bedre kode senere?
-            url += "&referencetime=" + "2024-09-01/2024-10-01";
+            url += "&referencetime=" + "2024-10-01/2024-10-03";
             url += "&levels=default";
             url += "&timeoffsets=default";
             // Replace spaces
@@ -84,10 +86,11 @@ public class Frost {
             // Loop through the data
             for (int i = 0; i < data.length(); i++) {
                 object = data.getJSONObject(i);
-                //her må jeg sammenligne ID og evt legge til verdiene dato og temperatur til korrekt instance
+                // FÅR IKKE TIL Å LEGGE TIL VERDIENE TIL ARRAYLISTEN
+                String x = object.getString("referenceTime");
+                String compId = object.getString("sourceId");
                 for (Station s : stations){
-                    if (s.getId().equals(object.getString("sourceId"))){
-                        String x = object.getString("referenceTime");
+                    if (compId.equals(s.getId())){
                         String y = "";
                         observations = object.getJSONArray("observations");
                         for (int j = 0; j < observations.length(); j++) {

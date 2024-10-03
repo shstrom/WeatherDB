@@ -65,9 +65,6 @@ public class Station {
         return values;
     }
 
-    public void setValues(ArrayList <String[]> values) {
-        this.values = values;
-    }
 
     public boolean isClosest() {
         return closest;
