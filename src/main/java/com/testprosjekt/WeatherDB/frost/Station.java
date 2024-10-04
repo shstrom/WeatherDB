@@ -18,7 +18,7 @@ public class Station {
         this.shortName = shortName;
         this.coordinates = null;
         this.distance = 1000.00;
-        this.values = null;
+        this.values = new ArrayList<String []>();
     }
 
     public String getId() {
@@ -94,7 +94,7 @@ public class Station {
                 ", shortName='" + shortName + '\'' +
                 ", coordinates='" + coordinates + '\'' +
                 ", distance=" + distance +
-                ", values=" + values +
+                ", values=" + values.toString() +
                 '}';
     }
 }

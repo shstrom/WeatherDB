@@ -88,14 +88,17 @@ public class Frost {
                 object = data.getJSONObject(i);
                 // FÅR IKKE TIL Å LEGGE TIL VERDIENE TIL ARRAYLISTEN
                 String x = object.getString("referenceTime");
-                String compId = object.getString("sourceId");
+                String compId = object.getString("sourceId").substring(0, 7);
+                observations = object.getJSONArray("observations");
                 for (Station s : stations){
                     if (compId.equals(s.getId())){
                         String y = "";
-                        observations = object.getJSONArray("observations");
                         for (int j = 0; j < observations.length(); j++) {
-                            object = observations.getJSONObject(j);
-                            y = object.getString("value");
+                            JSONObject objectO = observations.getJSONObject(j);
+                            var v = objectO.getBigDecimal("value");
+                            //var v = o;
+                            //y = object.getString("value");
+                            y = String.format("%s", v);
                             String [] temp = {x, y};
                             s.values.add(temp);
                         }
