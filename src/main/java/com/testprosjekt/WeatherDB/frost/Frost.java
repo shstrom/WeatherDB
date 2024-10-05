@@ -45,9 +45,6 @@ public class Frost {
 
                 Station station = new Station(object.getString("id"), object.getString("name"), object.getString("shortName"));
 
-
-                //}
-
                 JSONObject g = object.getJSONObject("geometry");
                 var c = g.get("coordinates");
                 String cs = String.format("%s", c);
