@@ -1,6 +1,7 @@
 package com.testprosjekt.WeatherDB.frost;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Station {
     String id;
@@ -61,8 +62,8 @@ public class Station {
         this.distance = distance;
     }
 
-    public ArrayList<String[]> getValues() {
-        return values;
+    public String getValues() {
+        return values.toString();
     }
 
 
@@ -88,13 +89,27 @@ public class Station {
 
     @Override
     public String toString() {
-        return "Station{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", shortName='" + shortName + '\'' +
-                ", coordinates='" + coordinates + '\'' +
-                ", distance=" + distance +
-                ", values=" + values.toString() +
-                '}';
+        StringBuilder sb = new StringBuilder();
+
+        // Append basic fields
+        sb.append("Station ID: ").append(id).append("\n");
+        sb.append("Name: ").append(name).append("\n");
+        sb.append("Short Name: ").append(shortName).append("\n");
+        sb.append("Coordinates: ").append(coordinates).append("\n");
+        sb.append("Distance: ").append(distance).append("\n");
+
+        // Append the ArrayList<String[]> (values)
+        sb.append("Values:\n");
+        for (String[] array : values) {
+            sb.append("  ").append(Arrays.toString(array)).append("\n");  // Format each String[] as a readable array
+        }
+
+        return sb.toString();
+    }
+
+    public void writeToDb () {
+
+
+
     }
 }

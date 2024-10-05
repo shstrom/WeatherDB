@@ -8,6 +8,8 @@ import org.json.JSONTokener;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.InputStreamReader;
 import java.net.URL;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class Frost {
@@ -68,7 +70,7 @@ public class Frost {
             String url = "https://frost.met.no/observations/v0.jsonld?";
             url += "sources=" + osloStations;
             url += "&elements=" + "mean(air_temperature P1D)";//bedre kode senere?
-            url += "&referencetime=" + "2024-10-01/2024-10-03";
+            url += "&referencetime=" + "2024-10-01/2024-10-04";
             url += "&levels=default";
             url += "&timeoffsets=default";
             // Replace spaces
@@ -110,11 +112,8 @@ public class Frost {
             System.out.println("Error: the data retrieval was not successful!");
             ex.printStackTrace();
         }
-        //System.out.println(stations);
-        //System.out.println(osloStations);
-        for (Station s : stations){
-            System.out.println(s.toString());
-        }
+
+
 
         //finne nærmeste stasjon
 
@@ -132,6 +131,30 @@ public class Frost {
             } else {
                 s.setClosest(false);
             }
+        }
+
+        for (Station s : stations){
+            //System.out.println(s.getValues());
+            System.out.println(s.toString());
+        }
+
+        //sette opp DB
+
+        var url = "jdbc:sqlite:weather.db";
+
+        var sql = "CREATE TABLE IF NOT EXISTS temperatures (" +
+                "	id INTEGER PRIMARY KEY," +
+                "	name text NOT NULL," +
+                "	date TEXT " +
+                "   value REAL" +
+                ");";
+
+        try (var conn = DriverManager.getConnection(url);
+             var stmt = conn.createStatement()) {
+            // create a new table
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
         }
     }
 }
