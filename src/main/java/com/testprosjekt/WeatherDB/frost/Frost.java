@@ -8,8 +8,11 @@ import org.json.JSONTokener;
 import javax.net.ssl.HttpsURLConnection;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.sql.DriverManager;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class Frost {
@@ -61,6 +64,11 @@ public class Frost {
         }
 
         String osloStations= stationId.replaceAll("[ \\]]", "").replaceAll("\\[", "");
+        LocalDate today = LocalDate.now();
+        // Calculate the date 7 days ago
+        LocalDate sevenDaysAgo = today.minusDays(7);
+        // Format the dates into the desired string format for the API
+        String dateRange = sevenDaysAgo + "/" + today;
 
 
         try {
@@ -70,7 +78,7 @@ public class Frost {
             String url = "https://frost.met.no/observations/v0.jsonld?";
             url += "sources=" + osloStations;
             url += "&elements=" + "mean(air_temperature P1D)";//bedre kode senere?
-            url += "&referencetime=" + "2024-10-01/2024-10-04";
+            url += "&referencetime=" + dateRange;
             url += "&levels=default";
             url += "&timeoffsets=default";
             // Replace spaces
@@ -133,26 +141,50 @@ public class Frost {
             }
         }
 
+        //clearTable();
+        Station.createNewTable();
+
         for (Station s : stations){
             //System.out.println(s.getValues());
-            System.out.println(s.toString());
+            //System.out.println(s.toString());
+            if (s.closest){
+                System.out.println(s);
+                s.insertIntoDatabase();
+                displayDataFromDatabase();
+
+            }
         }
 
-        //sette opp DB
 
-        var url = "jdbc:sqlite:weather.db";
+    }
+    public static void displayDataFromDatabase() {
+        String sql = "SELECT id, timestamp, value FROM station_values ORDER BY timestamp ASC";
 
-        var sql = "CREATE TABLE IF NOT EXISTS temperatures (" +
-                "	id INTEGER PRIMARY KEY," +
-                "	name text NOT NULL," +
-                "	date TEXT " +
-                "   value REAL" +
-                ");";
+        try (Connection conn = Station.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
 
-        try (var conn = DriverManager.getConnection(url);
-             var stmt = conn.createStatement()) {
-            // create a new table
-            stmt.execute(sql);
+            // Loop through the result set and print the results
+            while (rs.next()) {
+                System.out.println(
+                        "ID: " + rs.getString("id") +
+                                ", Timestamp: " + rs.getString("timestamp") +
+                                ", Value: " + rs.getDouble("value"));
+            }
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    public static void clearTable() {
+        String sql = "DELETE FROM station_values";  // This clears the "station_values" table
+
+        try (Connection conn = Station.connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            int rowsDeleted = pstmt.executeUpdate();  // Executes the deletion
+            System.out.println("Deleted " + rowsDeleted + " rows from station_values table.");
+
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
