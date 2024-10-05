@@ -56,6 +56,7 @@ public class Frost {
 
                 if (!stations.contains(station))stations.add (station);
                 stationId = stationId + object.getString("id") + ",";
+                //System.out.println(object.getString("id"));
 
             }
         } catch (Exception ex) {
@@ -63,11 +64,9 @@ public class Frost {
             ex.printStackTrace();
         }
 
-        String osloStations= stationId.replaceAll("[ \\]]", "").replaceAll("\\[", "");
+        //String osloStations= stationId.replaceAll("[ \\]]", "").replaceAll("\\[", "");
         LocalDate today = LocalDate.now();
-        // Calculate the date 7 days ago
         LocalDate sevenDaysAgo = today.minusDays(7);
-        // Format the dates into the desired string format for the API
         String dateRange = sevenDaysAgo + "/" + today;
 
 
@@ -76,7 +75,7 @@ public class Frost {
             String client_id = "cfb662ba-dfac-456a-b854-88fefbf51a9e";
             // Build the URL and define parameters
             String url = "https://frost.met.no/observations/v0.jsonld?";
-            url += "sources=" + osloStations;
+            url += "sources=" + stationId;
             url += "&elements=" + "mean(air_temperature P1D)";//bedre kode senere?
             url += "&referencetime=" + dateRange;
             url += "&levels=default";
