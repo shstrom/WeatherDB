@@ -56,7 +56,7 @@ public class Frost {
 
                 if (!stations.contains(station))stations.add (station);
                 stationId = stationId + object.getString("id") + ",";
-                //System.out.println(object.getString("id"));
+
 
             }
         } catch (Exception ex) {
@@ -64,7 +64,6 @@ public class Frost {
             ex.printStackTrace();
         }
 
-        //String osloStations= stationId.replaceAll("[ \\]]", "").replaceAll("\\[", "");
         LocalDate today = LocalDate.now();
         LocalDate sevenDaysAgo = today.minusDays(7);
         String dateRange = sevenDaysAgo + "/" + today;
@@ -95,7 +94,6 @@ public class Frost {
             // Loop through the data
             for (int i = 0; i < data.length(); i++) {
                 object = data.getJSONObject(i);
-                // FÅR IKKE TIL Å LEGGE TIL VERDIENE TIL ARRAYLISTEN
                 String x = object.getString("referenceTime");
                 String compId = object.getString("sourceId").substring(0, 7);
                 observations = object.getJSONArray("observations");
@@ -105,8 +103,6 @@ public class Frost {
                         for (int j = 0; j < observations.length(); j++) {
                             JSONObject objectO = observations.getJSONObject(j);
                             var v = objectO.getBigDecimal("value");
-                            //var v = o;
-                            //y = object.getString("value");
                             y = String.format("%s", v);
                             String [] temp = {x, y};
                             s.values.add(temp);
