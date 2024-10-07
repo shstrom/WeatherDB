@@ -1,5 +1,6 @@
 package com.testprosjekt.WeatherDB.frost;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import org.apache.commons.codec.binary.Base64;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -19,13 +20,11 @@ public class Frost {
 
     public static void main(String[] args) {
 
+        Dotenv cId = Dotenv.load();
 
         ArrayList<Station> stations = new ArrayList<>();
         String stationId = "";
         try {
-            // Insert your own client ID
-            String client_id = "cfb662ba-dfac-456a-b854-88fefbf51a9e";
-            // Build the URL and define parameters
             String url = "https://frost.met.no/sources/v0.jsonld?elements=air_temperature&municipality=Oslo";
             // Replace spaces
             url = url.replaceAll(" ", "%20");
@@ -34,7 +33,7 @@ public class Frost {
             HttpsURLConnection conn = (HttpsURLConnection) Url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
-            conn.setRequestProperty("Authorization", "Basic " + new String(Base64.encodeBase64((client_id + ":").getBytes("UTF-8"))));
+            conn.setRequestProperty("Authorization", "Basic " + new String(Base64.encodeBase64((cId.get("CLIENT_ID") + ":").getBytes("UTF-8"))));
             // Extract JSON data
             JSONObject object = new JSONObject(new JSONTokener(new InputStreamReader(conn.getInputStream())));
             JSONArray data = object.getJSONArray("data");
@@ -182,3 +181,4 @@ public class Frost {
         }
     }
 }
+
