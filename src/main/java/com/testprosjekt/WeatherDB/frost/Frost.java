@@ -20,11 +20,14 @@ public class Frost {
 
     public static void main(String[] args) {
 
+        //hente client id fra env
         Dotenv dotenv = Dotenv.load();
-        final String clientId = dotenv.get("CLIENT_ID");
+        final String CLIENTID = dotenv.get("CLIENT_ID");
 
         ArrayList<Station> stations = new ArrayList<>();
         String stationId = "";
+
+        //hente ut ID på stasjonene som ligger i Oslo
         try {
             String url = "https://frost.met.no/sources/v0.jsonld?elements=air_temperature&county=Oslo";
             // Replace spaces
@@ -34,7 +37,7 @@ public class Frost {
             HttpsURLConnection conn = (HttpsURLConnection) Url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
-            conn.setRequestProperty("Authorization", "Basic " + new String(Base64.encodeBase64((clientId + ":").getBytes("UTF-8"))));
+            conn.setRequestProperty("Authorization", "Basic " + new String(Base64.encodeBase64((CLIENTID + ":").getBytes("UTF-8"))));
             // Extract JSON data
             JSONObject object = new JSONObject(new JSONTokener(new InputStreamReader(conn.getInputStream())));
             JSONArray data = object.getJSONArray("data");
@@ -42,13 +45,11 @@ public class Frost {
             // Loop through the data
             for (int i = 0; i < data.length(); i++) {
                 object = data.getJSONObject(i);
-
                 Station station = new Station(object.getString("id"), object.getString("name"), object.getString("shortName"));
 
                 JSONObject g = object.getJSONObject("geometry");
-                var c = g.get("coordinates");
-                String cs = String.format("%s", c);
-                station.setCoordinates(cs);
+                String coordinates = String.format("%s", g.get("coordinates"));
+                station.setCoordinates(coordinates);
                 station.calculateDistance();
 
                 if (!stations.contains(station))stations.add (station);
@@ -61,11 +62,12 @@ public class Frost {
             ex.printStackTrace();
         }
 
+        //sette tidsperiode
         LocalDate today = LocalDate.now().minusDays(1);
         LocalDate sevenDaysAgo = today.minusDays(7);
         String dateRange = sevenDaysAgo + "/" + today;
 
-
+        //hente ut verdier fra aktuelle stasjoner
         try {
 
             String url = "https://frost.met.no/observations/v0.jsonld?";
@@ -80,7 +82,7 @@ public class Frost {
             HttpsURLConnection conn = (HttpsURLConnection) Url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
-            conn.setRequestProperty("Authorization", "Basic " + new String(Base64.encodeBase64((clientId + ":").getBytes("UTF-8"))));
+            conn.setRequestProperty("Authorization", "Basic " + new String(Base64.encodeBase64((CLIENTID + ":").getBytes("UTF-8"))));
             // Extract JSON data
             JSONObject object = new JSONObject(new JSONTokener(new InputStreamReader(conn.getInputStream())));
             JSONArray data = object.getJSONArray("data");
@@ -139,8 +141,6 @@ public class Frost {
     public static void updateDatabase (ArrayList<Station> stations){
         //sjekke om stasjonen er nærmest, og skrive til database
         for (Station s : stations){
-            //System.out.println(s.getValues());
-            //System.out.println(s.toString());
             if (s.closest){
                 System.out.println(s);
                 s.insertIntoDatabase();
