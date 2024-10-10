@@ -62,7 +62,7 @@ public class Frost {
         }
 
         LocalDate today = LocalDate.now().minusDays(1);
-        LocalDate sevenDaysAgo = today.minusDays(8);
+        LocalDate sevenDaysAgo = today.minusDays(7);
         String dateRange = sevenDaysAgo + "/" + today;
 
 
@@ -110,8 +110,14 @@ public class Frost {
             ex.printStackTrace();
         }
 
+        findClosestStation(stations);
+        clearTable();
+        Station.createNewTable();
+        updateDatabase(stations);
 
+    }
 
+    public static void findClosestStation(ArrayList <Station> stations){
         //finne nærmeste stasjon
 
         double comp = 3.00;
@@ -129,10 +135,9 @@ public class Frost {
                 s.setClosest(false);
             }
         }
-
-        //clearTable();
-        Station.createNewTable();
-
+    }
+    public static void updateDatabase (ArrayList<Station> stations){
+        //sjekke om stasjonen er nærmest, og skrive til database
         for (Station s : stations){
             //System.out.println(s.getValues());
             //System.out.println(s.toString());
@@ -143,8 +148,6 @@ public class Frost {
 
             }
         }
-
-
     }
     public static void displayDataFromDatabase() {
         String sql = "SELECT id, timestamp, value FROM station_values ORDER BY timestamp ASC";
