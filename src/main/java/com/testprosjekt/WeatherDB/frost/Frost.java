@@ -70,15 +70,29 @@ public class Frost {
         //hente ut verdier fra aktuelle stasjoner
         try {
 
-            String url = "https://frost.met.no/observations/v0.jsonld?";
-            url += "sources=" + stationId;
-            url += "&elements=" + "mean(air_temperature P1D)";//bedre kode senere?
-            url += "&referencetime=" + dateRange;
-            url += "&levels=default";
-            url += "&timeoffsets=default";
+            StringBuilder url = new StringBuilder();
 
-            url = url.replaceAll(" ", "%20");
-            URL Url = new URL(url);
+            url.append("https://frost.met.no/observations/v0.jsonld?");
+            url.append("sources=");
+            url.append(stationId);
+            url.append("&elements=");
+            url.append("mean(air_temperature%20P1D)");
+            url.append("&referencetime=");
+            url.append(dateRange);
+            url.append("&levels=default");
+            url.append("&timeoffsets=default");
+
+
+
+            //String url = "https://frost.met.no/observations/v0.jsonld?";
+            //url += "sources=" + stationId;
+            //url += "&elements=" + "mean(air_temperature P1D)";//bedre kode senere?
+            //url += "&referencetime=" + dateRange;
+            //url += "&levels=default";
+            //url += "&timeoffsets=default";
+            //url = url.replaceAll(" ", "%20");
+
+            URL Url = new URL(url.toString());
             HttpsURLConnection conn = (HttpsURLConnection) Url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
@@ -181,5 +195,6 @@ public class Frost {
             System.out.println(e.getMessage());
         }
     }
+
 }
 
