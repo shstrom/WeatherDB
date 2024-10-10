@@ -20,12 +20,13 @@ public class Frost {
 
     public static void main(String[] args) {
 
-        Dotenv cId = Dotenv.load();
+        Dotenv dotenv = Dotenv.load();
+        final String clientId = dotenv.get("CLIENT_ID");
 
         ArrayList<Station> stations = new ArrayList<>();
         String stationId = "";
         try {
-            String url = "https://frost.met.no/sources/v0.jsonld?elements=air_temperature&municipality=Oslo";
+            String url = "https://frost.met.no/sources/v0.jsonld?elements=air_temperature&county=Oslo";
             // Replace spaces
             url = url.replaceAll(" ", "%20");
             // Issue an HTTP GET request
@@ -33,7 +34,7 @@ public class Frost {
             HttpsURLConnection conn = (HttpsURLConnection) Url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
-            conn.setRequestProperty("Authorization", "Basic " + new String(Base64.encodeBase64((cId.get("CLIENT_ID") + ":").getBytes("UTF-8"))));
+            conn.setRequestProperty("Authorization", "Basic " + new String(Base64.encodeBase64((clientId + ":").getBytes("UTF-8"))));
             // Extract JSON data
             JSONObject object = new JSONObject(new JSONTokener(new InputStreamReader(conn.getInputStream())));
             JSONArray data = object.getJSONArray("data");
@@ -60,29 +61,26 @@ public class Frost {
             ex.printStackTrace();
         }
 
-        LocalDate today = LocalDate.now();
-        LocalDate sevenDaysAgo = today.minusDays(7);
+        LocalDate today = LocalDate.now().minusDays(1);
+        LocalDate sevenDaysAgo = today.minusDays(8);
         String dateRange = sevenDaysAgo + "/" + today;
 
 
         try {
-            // Insert your own client ID
-            String client_id = "cfb662ba-dfac-456a-b854-88fefbf51a9e";
-            // Build the URL and define parameters
+
             String url = "https://frost.met.no/observations/v0.jsonld?";
             url += "sources=" + stationId;
             url += "&elements=" + "mean(air_temperature P1D)";//bedre kode senere?
             url += "&referencetime=" + dateRange;
             url += "&levels=default";
             url += "&timeoffsets=default";
-            // Replace spaces
+
             url = url.replaceAll(" ", "%20");
-            // Issue an HTTP GET request
             URL Url = new URL(url);
             HttpsURLConnection conn = (HttpsURLConnection) Url.openConnection();
             conn.setRequestMethod("GET");
             conn.setRequestProperty("Accept", "application/json");
-            conn.setRequestProperty("Authorization", "Basic " + new String(Base64.encodeBase64((client_id + ":").getBytes("UTF-8"))));
+            conn.setRequestProperty("Authorization", "Basic " + new String(Base64.encodeBase64((clientId + ":").getBytes("UTF-8"))));
             // Extract JSON data
             JSONObject object = new JSONObject(new JSONTokener(new InputStreamReader(conn.getInputStream())));
             JSONArray data = object.getJSONArray("data");
